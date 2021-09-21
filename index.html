@@ -11,8 +11,98 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <main>
-        Teste
+    <main class="px-2 pt-4">
+
+        <div class="input-group">
+            <span class="input-group-text">Qual a quantidade de investimentos?</span>
+                <div class="col-md-2 ml-0">
+                    <input type="number" aria-label="Investimento" class="form-control">
+                </div>        
+          </div>
+
+        <br>
+
+          <div class="input-group">
+            <span class="input-group-text">Qual a quantidade de cenários?</span>
+                <div class="col-md-2 ml-0">
+                    <input type="number" aria-label="Investimento" class="form-control">
+                </div>     
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr id="head_cenarios">
+              </tr>
+            </thead>
+            <tbody id="body_investimento">
+            </tbody>
+          </table>
+
+        <div>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link active" href="tag_incerteza">Incerteza</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="tag_risco">Risco</a>
+                </li>
+            </ul>
+            
+            <div class="tab">
+                <div id="tag_incerteza">
+                    <div class="btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="checkbox" checked> MaxiMax
+                        </label>
+
+                        <div class="btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                              <input type="checkbox" checked> MaxiMin
+                            </label>
+                          </div>
+
+                          <div class="btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                              <input type="checkbox" checked> Laplace
+                            </label>
+                          </div>
+
+                          <div class="btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                              <input type="checkbox" checked> Hurwicz
+                            </label>
+                          </div>
+
+                          <div class="btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                              <input type="checkbox" checked> MiniMax
+                            </label>
+                          </div>
+                      </div>
+                </div>
+                <div id="tag_risco">
+                    <div class="btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="checkbox" checked> VME
+                        </label>
+                      </div>
+
+                      <div class="btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="checkbox" checked> POE
+                        </label>
+                      </div>
+
+                      <div class="btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="checkbox" checked> VEIP
+                        </label>
+                      </div>
+                </div>
+            </div>
+        </div>
+          
+          
     </main>
     <!-- Importando as dependências do Boostrap 4.6 -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
