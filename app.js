@@ -1,3 +1,10 @@
+$('.nav.nav-tabs a').on('click', (e) => {
+    $('.nav.nav-tabs *').removeClass('active')
+    e.target.classList.add('active')
+    $('.nav.nav-tabs + .tab-content *').removeClass('active')
+    $(`.nav.nav-tabs + .tab-content ${$(e.target).attr('togle')}`).addClass('active')
+})
+
 function calcRisco(cenarios, investimentos, tipo) {
 
     switch(tipo) {
