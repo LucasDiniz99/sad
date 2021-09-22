@@ -6,7 +6,13 @@ class Cenario {
         this.melhor_oportunidade = melhor_oportunidade
     }
 
-    // Fabrica multiplos cenários a partir de um array de numeros
+    /**
+     * Método factory qye fabrica um array de cenarios a partir de um
+     * array de inteiros com as probabilidades dos cenários
+     * @param {Array<int>} cenarios As probabilidades ordenadas dos cenários
+     * a ordem influencia qual cenário é (do cenário 0 ao N)
+     * @returns {Array<Cenario>} Um array de cenarios
+     */
     static factory(cenarios = Array()) {
         let result = Array()
         cenarios.forEach((item, key) => {
@@ -22,31 +28,49 @@ class Investimento {
         id = null, 
         valores = Array(), 
         resultado = 0, 
+        custos_oportunidade = null,
         maxiMax = Number.MIN_SAFE_INTEGER, 
-        maxiMin = Number.MIN_SAFE_INTEGER,
-        laplace = Number.MIN_SAFE_INTEGER,
-        hurwitz = Number.MIN_SAFE_INTEGER 
+        maxiMin = Number.MAX_SAFE_INTEGER,
+        miniMax = Number.MIN_SAFE_INTEGER,
+        laplace = 0,
+        hurwitz = 0 
     ) {
         this.id = id
         this.valores = Array.from(valores)
-        this.resultado = resultado,
+        this.resultado = resultado
+        this.custos_oportunidade = custos_oportunidade || Array(this.valores.length)
         this.maxiMax = maxiMax
         this.maxiMin = maxiMin
+        this.miniMax = miniMax
         this.laplace = laplace
         this.hurwitz = hurwitz
+    }
+
+    /**
+     * Método factory que recebe os investimentos em formato de matriz e retorna um array de Investimento
+     * @param {Array<Array>} investimentos Os investimentos em forma de matriz, onde 
+     * a primeira dimensão é os investimentos e a segunda os valores relativo aos cenarios
+     * @returns {Array<Investimento>} Um array de investimentos com os valores passados na matriz
+     */
+    static factory(investimentos) {
+        let result = Array()
+        investimentos.forEach((inv, key) => {
+            result.push(new this(key, inv))
+        })
+        return result
     }
 }
 
 function calcRisco(cenarios, investimentos) {
     cenarios = Cenario.factory(cenarios)
-    console.log(cenarios)
+    investimentos = Investimento.factory(investimentos)
 
     let VME = {
-        investimento: null,
+        investimentos: Array(),
         resultados: Array()
     }
     let POE = {
-        investimento: null,
+        investimentos: Array(),
         melhor_oportunidade: Array(cenarios.length).fill(Number.MIN_SAFE_INTEGER, 0),
         resultados: Array()
     }
@@ -57,6 +81,7 @@ function calcRisco(cenarios, investimentos) {
 
     // #region VME
     // Calculando o VME
+    let melhor_vme = Number.MIN_SAFE_INTEGER;
     investimentos.forEach((inv, key) => {
         let aux = new Investimento(key, inv.valores)
 
@@ -66,10 +91,15 @@ function calcRisco(cenarios, investimentos) {
         }
 
         VME.resultados.push(aux)
-        if (aux.resultado >= (VME.investimento ? VME.investimento.resultado :  Number.MIN_SAFE_INTEGER)) {
-            VME.investimento = aux
-        }
+        // Procura o melhor resultado para depois buscar todos os que tem valor igual o melhor
+        melhor_vme = Math.max(melhor_vme, aux.resultado)
     })
+
+    // Buscando todos os investimentos com o mesmo VME
+    VME.resultados.forEach(res => {
+        if(res.resultado == melhor_vme)
+            VME.investimentos.push(res)
+    });
     // #endregion
 
     // #region POE
@@ -83,18 +113,23 @@ function calcRisco(cenarios, investimentos) {
     }
     
     // Calculando o custo de oportunidade e o POE
+    let menor_poe = Number.MAX_SAFE_INTEGER
     investimentos.forEach((inv, key) => {
         let aux = new Investimento(key, inv.valores)
 
         for (let i = 0; i < cenarios.length && i < inv.valores.length; i++) {
-            aux.valores[i] = (inv.valores[i] - cenarios[i].melhor_oportunidade) * -1
-            aux.resultado += aux.valores[i] * cenarios[i].probabilidade
+            aux.custos_oportunidade[i] = (inv.valores[i] - cenarios[i].melhor_oportunidade) * -1
+            aux.resultado += aux.custos_oportunidade[i] * cenarios[i].probabilidade
         }
 
         POE.resultados.push(aux)
-        if (aux.resultado <= (POE.investimento ? POE.investimento.resultado : Number.MAX_SAFE_INTEGER )) {
-            POE.investimento = aux
-        }
+        menor_poe = Math.min(menor_poe, aux.resultado)
+    })
+
+    // Buscar todos os investimentos com o melhor resultado
+    POE.resultados.forEach(res => {
+        if(res.resultado == menor_poe)
+            POE.investimentos.push(res);
     })
     // #endregion
 
@@ -118,36 +153,67 @@ function calcRisco(cenarios, investimentos) {
 
 function calcIncerteza(cenarios, investimentos) {
     cenarios = Cenario.factory(cenarios)
+    investimentos = Investimento.factory(investimentos)
+
     let result = {
-        MaxiMax: new Investimento(),
-        MaxiMin: new Investimento(),
-        Laplace: new Investimento(),
-        Hurwitz: new Investimento(),
+        MaxiMax: Array(),
+        MaxiMin: Array(),
+        Laplace: Array(),
+        Hurwitz: Array(),
+        MiniMax: Array(),
         resultados: Array()
     }
     
+    // Variaveis comparativas para possibilitar resultados com multiplos investimentos
+    let melhorMaxiMax = Number.MIN_SAFE_INTEGER;
+    let melhorMaxiMin = Number.MAX_SAFE_INTEGER;
+    let melhorLaplace = Number.MIN_SAFE_INTEGER;
+    let melhorHurwitz = Number.MIN_SAFE_INTEGER;
+    let melhorMiniMax = Number.MAX_SAFE_INTEGER;
+
+    // Calculando melhor oportunidade do cenário
+    for(let i = 0; i < cenarios.length; i++) {
+        investimentos.forEach(inv => {
+            if(i < inv.valores.length)
+                cenarios[i].melhor_oportunidade = Math.max(cenarios[i].melhor_oportunidade, inv.valores[i])
+        })
+    }
+
+    // Calculando os melhores resultados
     investimentos.forEach((inv, key) => {
         let aux = new Investimento(key, inv.valores)
-        aux.laplace = 0
-        aux.maxiMin = Number.MAX_SAFE_INTEGER
 
         for (let i = 0; i < cenarios.length && i < inv.valores.length; i++) {
             aux.maxiMax = Math.max(aux.maxiMax, inv.valores[i])
             aux.maxiMin = Math.min(aux.maxiMin, inv.valores[i])
             aux.laplace += inv.valores[i]
-            
-            aux.valores[i] *= cenarios[i].probabilidade
-            console.log(cenarios[i].probabilidade)
-            aux.resultado += aux.valores[i]
-            aux.hurwitz = aux.resultado
+            aux.hurwitz += aux.valores[i] * cenarios[i].probabilidade
+
+            aux.custos_oportunidade[i] = (inv.valores[i] - cenarios[i].melhor_oportunidade) * -1
+            aux.miniMax = Math.max(aux.miniMax, aux.custos_oportunidade[i])
         }
         aux.laplace /= inv.valores.length
 
         result.resultados.push(aux)
-        result.MaxiMax = result.MaxiMax.maxiMax < aux.maxiMax ? aux : result.MaxiMax
-        result.MaxiMin = result.MaxiMin.maxiMin < aux.maxiMin ? aux : result.MaxiMin
-        result.Laplace = result.Laplace.laplace < aux.laplace ? aux : result.Laplace
-        result.Hurwitz = result.Hurwitz.hurwitz < aux.hurwitz ? aux : result.Hurwitz
+        melhorMaxiMax = Math.max(melhorMaxiMax, aux.maxiMax);
+        melhorMaxiMin = Math.min(melhorMaxiMin, aux.maxiMin);
+        melhorLaplace = Math.max(melhorLaplace, aux.laplace);
+        melhorHurwitz = Math.max(melhorHurwitz, aux.hurwitz);
+        melhorMiniMax = Math.min(melhorMiniMax, aux.miniMax);
+    })
+
+    // Buscando todos os resultados idênticos aos melhores
+    result.resultados.forEach(res => {
+        if(melhorMaxiMax == res.maxiMax)
+            result.MaxiMax.push(res)
+        if(melhorMaxiMin == res.maxiMin)
+            result.MaxiMin.push(res)
+        if(melhorLaplace == res.laplace)
+            result.Laplace.push(res)
+        if(melhorHurwitz == res.hurwitz)
+            result.Hurwitz.push(res)
+        if(melhorMiniMax == res.miniMax)
+            result.MiniMax.push(res)
     })
 
     return result
