@@ -108,6 +108,14 @@
     <!-- Importando App.js -->
     <script src="./app.js"></script>
 
-
+    <script>
+      // Listener que faz as tabs funcionarem
+      $('.nav.nav-tabs a').on('click', (e) => {
+          $('.nav.nav-tabs *').removeClass('active')
+          e.target.classList.add('active')
+          $('.nav.nav-tabs + .tab-content *').removeClass('active')
+          $(`.nav.nav-tabs + .tab-content ${$(e.target).attr('togle')}`).addClass('active')
+      })
+    </script>
 </body>
 </html>
