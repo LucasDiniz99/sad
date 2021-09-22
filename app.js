@@ -29,9 +29,9 @@ class Investimento {
         valores = Array(), 
         resultado = 0, 
         custos_oportunidade = null,
-        maxiMax = Number.MIN_SAFE_INTEGER, 
-        maxiMin = Number.MAX_SAFE_INTEGER,
-        miniMax = Number.MIN_SAFE_INTEGER,
+        maxiMax = null, 
+        maxiMin = null,
+        miniMax = null,
         laplace = 0,
         hurwitz = 0 
     ) {
@@ -79,6 +79,15 @@ function calcRisco(cenarios, investimentos) {
         resultados: Array()
     }
 
+    // Garantir que haja ao menos 1 cenario e investimento válido
+    if(cenarios.length < 1 || investimentos.length < 1) {
+        return {
+            VME: VME,
+            POE: POE,
+            VEIP: VEIP
+        }
+    }
+    
     // #region VME
     // Calculando o VME
     let melhor_vme = Number.MIN_SAFE_INTEGER;
@@ -163,6 +172,10 @@ function calcIncerteza(cenarios, investimentos) {
         MiniMax: Array(),
         resultados: Array()
     }
+
+    // Garantir que haja ao menos 1 cenario e investimento válido
+    if(cenarios.length < 1 || investimentos.length < 1)
+        return result
     
     // Variaveis comparativas para possibilitar resultados com multiplos investimentos
     let melhorMaxiMax = Number.MIN_SAFE_INTEGER;
@@ -184,13 +197,13 @@ function calcIncerteza(cenarios, investimentos) {
         let aux = new Investimento(key, inv.valores)
 
         for (let i = 0; i < cenarios.length && i < inv.valores.length; i++) {
-            aux.maxiMax = Math.max(aux.maxiMax, inv.valores[i])
-            aux.maxiMin = Math.min(aux.maxiMin, inv.valores[i])
+            aux.maxiMax = Math.max(aux.maxiMax || Number.MIN_SAFE_INTEGER, inv.valores[i])
+            aux.maxiMin = Math.min(aux.maxiMin || Number.MAX_SAFE_INTEGER, inv.valores[i])
             aux.laplace += inv.valores[i]
             aux.hurwitz += aux.valores[i] * cenarios[i].probabilidade
 
             aux.custos_oportunidade[i] = (inv.valores[i] - cenarios[i].melhor_oportunidade) * -1
-            aux.miniMax = Math.max(aux.miniMax, aux.custos_oportunidade[i])
+            aux.miniMax = Math.max(aux.miniMax || Number.MIN_SAFE_INTEGER, aux.custos_oportunidade[i])
         }
         aux.laplace /= inv.valores.length
 
