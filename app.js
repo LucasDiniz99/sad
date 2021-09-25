@@ -20,20 +20,34 @@ class Cenario {
         })
         return result
     }
+
+    /**
+     * Transforma este elemento cenário em um elemento html
+     * @returns Um elemento formatado com as características do cenário
+     */
+    toString() {
+        return `
+        <th id="cenario-input-${this.id}">
+          <span class="mr-2">C${this.id}</span>
+          <input cen="${this.id}" type="number" min="0" max="100" value="${this.probabilidade * 100}">
+          <span class="ml-1">%</span>
+        </th>
+      `;
+    }
 }
 
 // Classe que representa um investimento
 class Investimento {
     constructor(
-        id = null, 
-        valores = Array(), 
-        resultado = 0, 
+        id = null,
+        valores = Array(),
+        resultado = 0,
         custos_oportunidade = null,
-        maxiMax = null, 
+        maxiMax = null,
         maxiMin = null,
         miniMax = null,
         laplace = 0,
-        hurwitz = 0 
+        hurwitz = 0
     ) {
         this.id = id
         this.valores = Array.from(valores)
@@ -59,11 +73,26 @@ class Investimento {
         })
         return result
     }
+
+    /**
+     * Transforma este elemento investimento em um elemento html
+     * @returns Um elemento formatado com as características do investimento
+     */
+    toString(showLabel = false) {
+        let html = `<tr inv="${this.id}" id="investimento-input-${this.id}">`
+        if(showLabel) {
+            html += `<td class="table-label">Inv-${this.id}</td>`
+        }
+        for (let i = 0; i < this.valores.length; i++) {
+            html += `<td class="text-center">
+                <input cen="${i}" class="form-control" type="number" min="0" value="${this.valores[i]}">
+            </td>`
+        }
+        return html + '</tr>'
+    }
 }
 
 function calcRisco(cenarios, investimentos) {
-    cenarios = Cenario.factory(cenarios)
-    investimentos = Investimento.factory(investimentos)
 
     let VME = {
         investimentos: Array(),
@@ -80,14 +109,14 @@ function calcRisco(cenarios, investimentos) {
     }
 
     // Garantir que haja ao menos 1 cenario e investimento válido
-    if(cenarios.length < 1 || investimentos.length < 1) {
+    if (cenarios.length < 1 || investimentos.length < 1) {
         return {
             VME: VME,
             POE: POE,
             VEIP: VEIP
         }
     }
-    
+
     // #region VME
     // Calculando o VME
     let melhor_vme = Number.MIN_SAFE_INTEGER;
@@ -106,21 +135,21 @@ function calcRisco(cenarios, investimentos) {
 
     // Buscando todos os investimentos com o mesmo VME
     VME.resultados.forEach(res => {
-        if(res.resultado == melhor_vme)
+        if (res.resultado == melhor_vme)
             VME.investimentos.push(res)
     });
     // #endregion
 
     // #region POE
     // Calculando melhor oportunidade do POE
-    for(let i = 0; i < cenarios.length; i++) {
+    for (let i = 0; i < cenarios.length; i++) {
         investimentos.forEach(inv => {
-            if(i < inv.valores.length)
+            if (i < inv.valores.length)
                 POE.melhor_oportunidade[i] = Math.max(POE.melhor_oportunidade[i], inv.valores[i])
         })
         cenarios[i].melhor_oportunidade = POE.melhor_oportunidade[i]
     }
-    
+
     // Calculando o custo de oportunidade e o POE
     let menor_poe = Number.MAX_SAFE_INTEGER
     investimentos.forEach((inv, key) => {
@@ -137,7 +166,7 @@ function calcRisco(cenarios, investimentos) {
 
     // Buscar todos os investimentos com o melhor resultado
     POE.resultados.forEach(res => {
-        if(res.resultado == menor_poe)
+        if (res.resultado == menor_poe)
             POE.investimentos.push(res);
     })
     // #endregion
@@ -152,7 +181,7 @@ function calcRisco(cenarios, investimentos) {
     VEIP.investimento = aux
     VEIP.resultados = VME.resultados
     // #endregion
-    
+
     return {
         VME: VME,
         POE: POE,
@@ -161,8 +190,6 @@ function calcRisco(cenarios, investimentos) {
 }
 
 function calcIncerteza(cenarios, investimentos) {
-    cenarios = Cenario.factory(cenarios)
-    investimentos = Investimento.factory(investimentos)
 
     let result = {
         MaxiMax: Array(),
@@ -174,9 +201,9 @@ function calcIncerteza(cenarios, investimentos) {
     }
 
     // Garantir que haja ao menos 1 cenario e investimento válido
-    if(cenarios.length < 1 || investimentos.length < 1)
+    if (cenarios.length < 1 || investimentos.length < 1)
         return result
-    
+
     // Variaveis comparativas para possibilitar resultados com multiplos investimentos
     let melhorMaxiMax = Number.MIN_SAFE_INTEGER;
     let melhorMaxiMin = Number.MAX_SAFE_INTEGER;
@@ -185,9 +212,9 @@ function calcIncerteza(cenarios, investimentos) {
     let melhorMiniMax = Number.MAX_SAFE_INTEGER;
 
     // Calculando melhor oportunidade do cenário
-    for(let i = 0; i < cenarios.length; i++) {
+    for (let i = 0; i < cenarios.length; i++) {
         investimentos.forEach(inv => {
-            if(i < inv.valores.length)
+            if (i < inv.valores.length)
                 cenarios[i].melhor_oportunidade = Math.max(cenarios[i].melhor_oportunidade, inv.valores[i])
         })
     }
@@ -217,15 +244,15 @@ function calcIncerteza(cenarios, investimentos) {
 
     // Buscando todos os resultados idênticos aos melhores
     result.resultados.forEach(res => {
-        if(melhorMaxiMax == res.maxiMax)
+        if (melhorMaxiMax == res.maxiMax)
             result.MaxiMax.push(res)
-        if(melhorMaxiMin == res.maxiMin)
+        if (melhorMaxiMin == res.maxiMin)
             result.MaxiMin.push(res)
-        if(melhorLaplace == res.laplace)
+        if (melhorLaplace == res.laplace)
             result.Laplace.push(res)
-        if(melhorHurwitz == res.hurwitz)
+        if (melhorHurwitz == res.hurwitz)
             result.Hurwitz.push(res)
-        if(melhorMiniMax == res.miniMax)
+        if (melhorMiniMax == res.miniMax)
             result.MiniMax.push(res)
     })
 
