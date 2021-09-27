@@ -56,7 +56,7 @@
         </table>
 
         <div class="form-group">
-            <button class="btn btn-primary" type="button" onclick="InputTable.calcular()">Calcular</button>
+            <button class="btn btn-primary" type="button" onclick="InputTable.calculate()">Calcular</button>
         </div>
     </main>
     <!-- Importando JQuery -->
@@ -91,7 +91,7 @@
 
             updateTableSize: function (quantCenarios = null, quantInvestimentos = null) {
                 let first = quantCenarios == null && quantInvestimentos == null
-                // Caso não seja a primeira chamada, salva o formulario
+                // Caso não seja a primeira chamada, salva o formulario antes de alterar as listas de cenarios e
                 if (!first)
                     this.getForm()
 
@@ -137,33 +137,33 @@
                     this.quant_investimentos = quantInvestimentos
                 }
 
-                // Caso seja a primeira chamada, salva o formulario
+                // Caso seja a primeira chamada, salva o formulario somente depois de gerar as listas de investimentos e cenarios
                 if (first)
                     this.getForm()
                 // Renderiza a tabela
                 this.render()
             },
 
-getForm: function () {
-    // Atualizar os cenarios
-    this.containers.cenarios.querySelectorAll('input').forEach(item => {
-        let cenario = this.cenarios.find(cen => cen.id == $(item).attr('cen'))
-        if (cenario) {
-            cenario.probabilidade = Number.parseFloat(item.value) / 100
-        }
-    })
-    // Atualizar os investimentos
-    this.containers.investimentos.querySelectorAll('tr').forEach(item => {
-        let investimento = this.investimentos.find(inv => inv.id == $(item).attr('inv'))
-        if (investimento) {
-            this.containers.investimentos.querySelectorAll(`#investimento-input-${investimento.id} input`).forEach(val => {
-                investimento.valores[$(val).attr('cen')] = Number.parseInt(val.value)
-            })
-        }
-    })
-    // Atualizar tipo de ambiente
-    this.ambiente = document.querySelector('input[name="tipo_ambiente"][checked]').value
-},
+            getForm: function () {
+                // Atualizar os cenarios
+                this.containers.cenarios.querySelectorAll('input').forEach(item => {
+                    let cenario = this.cenarios.find(cen => cen.id == $(item).attr('cen'))
+                    if (cenario) {
+                        cenario.probabilidade = Number.parseFloat(item.value) / 100
+                    }
+                })
+                // Atualizar os investimentos
+                this.containers.investimentos.querySelectorAll('tr').forEach(item => {
+                    let investimento = this.investimentos.find(inv => inv.id == $(item).attr('inv'))
+                    if (investimento) {
+                        this.containers.investimentos.querySelectorAll(`#investimento-input-${investimento.id} input`).forEach(val => {
+                            investimento.valores[$(val).attr('cen')] = Number.parseInt(val.value)
+                        })
+                    }
+                })
+                // Atualizar tipo de ambiente
+                this.ambiente = Array.from(document.querySelectorAll('input[name="tipo_ambiente"]')).find(el => el.checked).value
+            },
 
             // Renderiza o html da tabela
             render: function () {
@@ -185,11 +185,15 @@ getForm: function () {
                 })
             },
 
-            calcular: function() {
+            // Calcula o resultado a partir das entradas providas
+            calculate: function () {
+                // Atualiza o formulario interno
+                this.getForm()
+                // Gera o nome da função de calculo
                 let method = `calc${this.ambiente}`
-                console.log(method)
                 method = window[method]
-                if(method)
+                // Chama a função de calculo caso exista
+                if (method)
                     console.log(method.apply(this, [this.cenarios, this.investimentos]))
             },
 

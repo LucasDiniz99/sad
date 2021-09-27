@@ -29,7 +29,7 @@ class Cenario {
         return `
         <th id="cenario-input-${this.id}">
           <span class="mr-2">C${this.id}</span>
-          <input cen="${this.id}" type="number" min="0" max="100" value="${this.probabilidade * 100}">
+          <input cen="${this.id}" onclick="$('#cenario-input-${this.id} input').select()" type="number" min="0" max="100" value="${this.probabilidade * 100}">
           <span class="ml-1">%</span>
         </th>
       `;
@@ -85,7 +85,7 @@ class Investimento {
         }
         for (let i = 0; i < this.valores.length; i++) {
             html += `<td class="text-center">
-                <input cen="${i}" class="form-control" type="number" min="0" value="${this.valores[i]}">
+                <input cen="${i}" onclick="$('#investimento-input-${this.id} input[cen=${i}]').select()" class="form-control" type="number" min="0" value="${this.valores[i]}">
             </td>`
         }
         return html + '</tr>'
