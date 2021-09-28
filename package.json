@@ -1,0 +1,22 @@
+{
+  "name": "sad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.html",
+  "scripts": {
+    "sass": "sass --watch src/style.scss dist/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasDiniz99/sad.git"
+  },
+  "author": "Lucas Rodrigues Diniz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LucasDiniz99/sad/issues"
+  },
+  "homepage": "https://github.com/LucasDiniz99/sad#readme",
+  "dependencies": {
+    "sass": "^1.42.1"
+  }
+}

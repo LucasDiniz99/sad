@@ -39,25 +39,25 @@ class Cenario {
 // Classe que representa um investimento
 class Investimento {
     constructor(
-        id = null,
+        id = -1,
         valores = Array(),
         resultado = 0,
         custos_oportunidade = null,
-        maxiMax = null,
-        maxiMin = null,
-        miniMax = null,
+        maximax = null,
+        maximin = null,
+        minimax = null,
         laplace = 0,
-        hurwitz = 0
+        hurwicz = 0
     ) {
-        this.id = id
+        this.id = (id != -1) ? id : 0
         this.valores = Array.from(valores)
         this.resultado = resultado
         this.custos_oportunidade = custos_oportunidade || Array(this.valores.length)
-        this.maxiMax = maxiMax
-        this.maxiMin = maxiMin
-        this.miniMax = miniMax
+        this.maximax = maximax
+        this.maximin = maximin
+        this.minimax = minimax
         this.laplace = laplace
-        this.hurwitz = hurwitz
+        this.hurwicz = hurwicz
     }
 
     /**
@@ -104,7 +104,7 @@ function calcRisco(cenarios, investimentos) {
         resultados: Array()
     }
     let VEIP = {
-        investimento: null,
+        investimentos: Array(),
         resultados: Array()
     }
 
@@ -124,8 +124,7 @@ function calcRisco(cenarios, investimentos) {
         let aux = new Investimento(key, inv.valores)
 
         for (let i = 0; i < cenarios.length && i < inv.valores.length; i++) {
-            aux.valores[i] *= cenarios[i].probabilidade
-            aux.resultado += aux.valores[i]
+            aux.resultado += aux.valores[i] *= cenarios[i].probabilidade
         }
 
         VME.resultados.push(aux)
@@ -173,12 +172,11 @@ function calcRisco(cenarios, investimentos) {
 
     // #region VEIP
     // Calculando o VEIP aproveitando as melhores oportunidades encontradas no POE
-    let aux = new Investimento(0, POE.melhor_oportunidade)
+    let aux = new Investimento(null, POE.melhor_oportunidade)
     cenarios.forEach(cen => {
-        aux.valores[cen.id] *= cen.probabilidade
-        aux.resultado += aux.valores[cen.id]
+        aux.resultado += aux.valores[cen.id] * cen.probabilidade
     })
-    VEIP.investimento = aux
+    VEIP.investimentos = [aux]
     VEIP.resultados = VME.resultados
     // #endregion
 
@@ -195,7 +193,7 @@ function calcIncerteza(cenarios, investimentos) {
         MaxiMax: Array(),
         MaxiMin: Array(),
         Laplace: Array(),
-        Hurwitz: Array(),
+        Hurwicz: Array(),
         MiniMax: Array(),
         resultados: Array()
     }
@@ -208,7 +206,7 @@ function calcIncerteza(cenarios, investimentos) {
     let melhorMaxiMax = Number.MIN_SAFE_INTEGER;
     let melhorMaxiMin = Number.MAX_SAFE_INTEGER;
     let melhorLaplace = Number.MIN_SAFE_INTEGER;
-    let melhorHurwitz = Number.MIN_SAFE_INTEGER;
+    let melhorHurwicz = Number.MIN_SAFE_INTEGER;
     let melhorMiniMax = Number.MAX_SAFE_INTEGER;
 
     // Calculando melhor oportunidade do cenário
@@ -224,35 +222,35 @@ function calcIncerteza(cenarios, investimentos) {
         let aux = new Investimento(key, inv.valores)
 
         for (let i = 0; i < cenarios.length && i < inv.valores.length; i++) {
-            aux.maxiMax = Math.max(aux.maxiMax || Number.MIN_SAFE_INTEGER, inv.valores[i])
-            aux.maxiMin = Math.min(aux.maxiMin || Number.MAX_SAFE_INTEGER, inv.valores[i])
+            aux.maximax = Math.max(aux.maximax || Number.MIN_SAFE_INTEGER, inv.valores[i])
+            aux.maximin = Math.min(aux.maximin || Number.MAX_SAFE_INTEGER, inv.valores[i])
             aux.laplace += inv.valores[i]
-            aux.hurwitz += aux.valores[i] * cenarios[i].probabilidade
+            aux.hurwicz += aux.valores[i] * cenarios[i].probabilidade
 
             aux.custos_oportunidade[i] = (inv.valores[i] - cenarios[i].melhor_oportunidade) * -1
-            aux.miniMax = Math.max(aux.miniMax || Number.MIN_SAFE_INTEGER, aux.custos_oportunidade[i])
+            aux.minimax = Math.max(aux.minimax || Number.MIN_SAFE_INTEGER, aux.custos_oportunidade[i])
         }
         aux.laplace /= inv.valores.length
 
         result.resultados.push(aux)
-        melhorMaxiMax = Math.max(melhorMaxiMax, aux.maxiMax);
-        melhorMaxiMin = Math.min(melhorMaxiMin, aux.maxiMin);
+        melhorMaxiMax = Math.max(melhorMaxiMax, aux.maximax);
+        melhorMaxiMin = Math.min(melhorMaxiMin, aux.maximin);
         melhorLaplace = Math.max(melhorLaplace, aux.laplace);
-        melhorHurwitz = Math.max(melhorHurwitz, aux.hurwitz);
-        melhorMiniMax = Math.min(melhorMiniMax, aux.miniMax);
+        melhorHurwicz = Math.max(melhorHurwicz, aux.hurwicz);
+        melhorMiniMax = Math.min(melhorMiniMax, aux.minimax);
     })
 
     // Buscando todos os resultados idênticos aos melhores
     result.resultados.forEach(res => {
-        if (melhorMaxiMax == res.maxiMax)
+        if (melhorMaxiMax == res.maximax)
             result.MaxiMax.push(res)
-        if (melhorMaxiMin == res.maxiMin)
+        if (melhorMaxiMin == res.maximin)
             result.MaxiMin.push(res)
         if (melhorLaplace == res.laplace)
             result.Laplace.push(res)
-        if (melhorHurwitz == res.hurwitz)
-            result.Hurwitz.push(res)
-        if (melhorMiniMax == res.miniMax)
+        if (melhorHurwicz == res.hurwicz)
+            result.Hurwicz.push(res)
+        if (melhorMiniMax == res.minimax)
             result.MiniMax.push(res)
     })
 

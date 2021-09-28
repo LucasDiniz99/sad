@@ -1,0 +1,109 @@
+main {
+    background-color: grey;
+    min-height: 100vh;
+
+    > div.card {
+        display: flex;
+        flex-flow: column;
+    }
+}
+
+.template {
+    display: none;
+}
+
+// #region Table style
+
+.table-label {
+    text-align: center;
+    vertical-align: middle !important;
+    font-weight: bold;
+}
+
+.table-container {
+    overflow-x: scroll;
+    width: max-content;
+    max-width: 100%;
+    margin-bottom: 2em;
+
+    table {
+        width: max-content;
+        margin: 0;
+    }
+
+    tbody input {
+        max-width: 100px;
+        margin: auto;
+    }
+}
+
+table {
+    thead th {
+        text-align: center;
+    }
+    tbody td.fill-grid {
+        padding: 0;
+
+        .grid-container {
+            display: flex;
+
+            span {
+                display: inline-block;
+                padding: 0.75rem;
+                border-right: 1px solid lightgray;
+            }
+            span:last-of-type {
+                border: unset;
+            }
+        }
+    }
+}
+// #endregion
+// #region Class options
+
+// Shows only the content making the button invisible
+.clear-button {
+    background: unset;
+    border: unset;
+    padding: 0;
+    font: inherit;
+}
+
+.input-group-text {
+    margin-right: -2px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    & + * {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+
+        * {
+            max-width: 75px;
+            margin-right: 2rem;
+            border-top-left-radius: inherit;
+            border-bottom-left-radius: inherit;
+        }
+    }
+}
+
+.stylish-title {
+    display: flex;
+    align-items: center;
+    flex-grow: 0;
+    background-color: #4ec5c9;
+    margin: 0 auto;
+    top: -1.25rem;
+    padding: 0.5rem !important;
+    transform: translateY(-25%);
+
+    * {
+        margin: 0;
+    }
+}
+// #endregion
+// #region Class options
+.w-max {
+    width: max-content !important;
+}
+// #endregion

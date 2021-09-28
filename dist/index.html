@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANÁLISE DE DECISÃO</title>
+    <!-- Importando CSS Boostrap 4.6 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <!-- Importando estilo da aplicação -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <main class="px-2 py-4 d-flex justify-content-center bg-grey">
+        <div class="card card-body shadow-sm bg-light">
+            <div class="card card-body stylish-title">
+                <h3>Sistema de Análise de Decisão</h3>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <div class="input-group form-group w-max">
+                    <span class="input-group-text">Quantidade de investimentos</span>
+                    <div class="pl-0">
+                        <input id="quantidade_investimentos" type="number" aria-label="Quantidade de investimento"
+                            class="form-control" value="1" min="1" max="50">
+                    </div>
+                </div>
+
+                <div class="input-group form-group w-max">
+                    <span class="input-group-text">Quantidade de cenários</span>
+                    <div class="pl-0">
+                        <input id="quantidade_cenarios" type="number" aria-label="Quantidade de cenários"
+                            class="form-control" value="1" min="1" max="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <b>Tipo do Ambiente:</b>
+                <div class="d-flex align-items-center">
+                    <div class="input-group align-items-center w-max mr-3">
+                        <button type="button" class="clear-button button-check-input">
+                            <input type="radio" name="tipo_ambiente" class="mr-2" value="Risco" checked>
+                            <span>Ambiente de risco</span>
+                        </button>
+                    </div>
+                    <div class="input-group align-items-center w-max">
+                        <button type="button" class="clear-button button-check-input">
+                            <input type="radio" name="tipo_ambiente" class="mr-2" value="Incerteza">
+                            <span>Ambiente de incerteza</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr id="head_cenarios">
+                        </tr>
+                    </thead>
+                    <tbody id="body_investimento">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary" type="button" onclick="InputTable.calculate()">Calcular</button>
+            </div>
+
+            <hr>
+
+            <div id="container-resultados">
+                <div id="resultados-risco" class="d-none">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>VME</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>VME</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-vme">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>POE</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>POE</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-poe">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>VEIP</b></h5>
+                        </div>
+                        <div class="table-container">
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr class="headers-resultados-veip">
+                                        <th></th>
+                                        <th><b>VEIP</b></th>
+                                        <th>Valores dos cenários</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-veip">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="resultados-incerteza" class="d-none">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>MaxiMax</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>MaxiMax</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-maximax">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>MaxiMin</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>MaxiMin</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-maximin">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>Laplace</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>Laplace</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-laplace">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>Hurwicz</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>Hurwicz</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-hurwicz">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <h5>Utilizando do método de <b>MiniMax</b></h5>
+                        </div>
+                        <div>
+                            <table class="w-max table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th><b>MiniMax</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-minimax">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <!-- Importando JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <!-- Importando as dependências do Boostrap 4.6 -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
+        integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
+        crossorigin="anonymous"></script>
+    <!-- Importando App.js -->
+    <script src="./app.js"></script>
+
+    <script>
+        // Inicializando a tabela
+        var InputTable = {
+            ambiente: '',
+            cenarios: Array(),
+            investimentos: Array(),
+            quant_cenarios: 0,
+            quant_investimentos: 0,
+
+            inputs: {
+                quant_cenarios: null,
+                quant_investimentos: null
+            },
+            containers: {
+                cenarios: null,
+                investimentos: null
+            },
+
+            updateTableSize: function (quantCenarios = null, quantInvestimentos = null) {
+                let first = quantCenarios == null && quantInvestimentos == null
+                // Caso não seja a primeira chamada, salva o formulario antes de alterar as listas de cenarios e
+                if (!first)
+                    this.getForm()
+
+                // Caso não haja nenhum cenário nem investimento quando chamado o método insere 1 de cada
+                if ((this.quant_cenarios <= 0 || this.quant_investimentos <= 0) && (quantCenarios == null || quantInvestimentos == null)) {
+                    this.quant_cenarios = this.quant_investimentos = 0
+                    quantCenarios = Math.max(1, Number.parseInt(this.inputs.quant_cenarios.value || 0))
+                    quantInvestimentos = Math.max(1, Number.parseInt(this.inputs.quant_investimentos.value || 0))
+                }
+
+                // Quando há variação nos cenários
+                let diff = quantCenarios - this.quant_cenarios
+                if (quantCenarios != null && diff != 0) {
+                    if (diff > 0) {
+                        // Expande a quantidade de valores nos investimentos
+                        for (let i in this.investimentos) {
+                            this.investimentos[i].valores = this.investimentos[i].valores.concat(Array(diff).fill(0))
+                        }
+                        // Instancia mais cenarios
+                        for (; diff > 0; diff--) {
+                            this.cenarios.push(new Cenario(this.cenarios.length))
+                        }
+                    } else {
+                        // Posição inicial da qual todos os valores seguintes serão removidos
+                        let len = Math.max(0, this.cenarios.length + diff)
+                        // Removendo as posições excedentes
+                        this.cenarios.splice(len)
+                        for (let i in this.investimentos) {
+                            this.investimentos[i].valores.splice(len)
+                        }
+                    }
+                    this.quant_cenarios = quantCenarios
+                }
+                // Quando há variação nos investimentos
+                diff = quantInvestimentos - this.quant_investimentos
+                if (quantInvestimentos != null && diff != 0) {
+                    if (diff > 0) {
+                        for (; diff > 0; diff--)
+                            this.investimentos.push(new Investimento(this.investimentos.length, Array(this.quant_cenarios).fill(0)))
+                    } else {
+                        this.investimentos.splice(Math.max(0, this.investimentos.length + diff))
+                    }
+                    this.quant_investimentos = quantInvestimentos
+                }
+
+                // Caso seja a primeira chamada, salva o formulario somente depois de gerar as listas de investimentos e cenarios
+                if (first)
+                    this.getForm()
+                // Renderiza a tabela
+                this.render()
+            },
+
+            getForm: function () {
+                // Atualizar os cenarios
+                this.containers.cenarios.querySelectorAll('input').forEach(item => {
+                    let cenario = this.cenarios.find(cen => cen.id == $(item).attr('cen'))
+                    if (cenario) {
+                        cenario.probabilidade = Number.parseFloat(item.value) / 100
+                    }
+                })
+                // Atualizar os investimentos
+                this.containers.investimentos.querySelectorAll('tr').forEach(item => {
+                    let investimento = this.investimentos.find(inv => inv.id == $(item).attr('inv'))
+                    if (investimento) {
+                        this.containers.investimentos.querySelectorAll(`#investimento-input-${investimento.id} input`).forEach(val => {
+                            investimento.valores[$(val).attr('cen')] = Number.parseInt(val.value)
+                        })
+                    }
+                })
+                // Atualizar tipo de ambiente
+                this.ambiente = Array.from(document.querySelectorAll('input[name="tipo_ambiente"]')).find(el => el.checked).value
+            },
+
+            // Renderiza o html da tabela
+            render: function () {
+                // Limpando os containers
+                for (let item in this.containers)
+                    $(this.containers[item]).empty()
+
+                // Inserindo os cenarios
+                this.cenarios.forEach((cenario, key) => {
+                    // Primeira coluna (dos labels)
+                    if (key == 0)
+                        this.containers.cenarios.append($('<th></th>')[0])
+                    this.containers.cenarios.append($(cenario.toString())[0])
+                })
+
+                // Inserindo os investimentos
+                this.investimentos.forEach(investimento => {
+                    this.containers.investimentos.append($(investimento.toString(true))[0])
+                })
+            },
+
+            // Calcula o resultado a partir das entradas providas
+            calculate: function () {
+                // Atualiza o formulario interno
+                this.getForm()
+                // Gera o nome da função de calculo
+                let method = `calc${this.ambiente}`
+                method = window[method]
+                // Caso haja um erro na função desejada encerra este método
+                if (!method)
+                    return
+                // Calcula os resultados
+                let result = method.apply(this, [this.cenarios, this.investimentos])
+                console.log(result)
+                // Gera o html do resultado
+                let ambiente = this.ambiente.toLowerCase()
+                // Seleciona o timpo de ambiente doresultado
+                $('#container-resultados > div').addClass('d-none')
+                $(`#resultados-${ambiente}`).removeClass('d-none')
+
+                // Busca os nomes dos resultados (e.g.: VME, POE, MiniMax)
+                let keys = Object.keys(result)
+                // Gera o html do cenario de risco
+                for (let i = 0; i < keys.length; i++) {
+                    let method = keys[i].toLowerCase()
+                    $(`#resultados-${method}`).empty()
+                    // Dependendo do ambiente os resultados ficam em uma chave diferente
+                    let methodResults = (ambiente == 'risco') ? result[keys[i]].investimentos : result[keys[i]]
+                    
+                    console.log(ambiente, method, methodResults)
+                    // Gera o html a partir dos resultados
+                    methodResults.forEach(item => {
+                        let html = `
+                            <td>Investimento ${(item.id != null) ? item.id : ''}</td>
+                            <td class="text-center">${(ambiente == 'risco') ? item.resultado : item[method]}</td>
+                            `
+                        if (method == 'veip') {
+                            html += '<td class="fill-grid"><div class="grid-container">'
+                            item.valores.forEach((valor, key) => {
+                                html += `<span>Cen-${key}: <b>${valor}</b></span>`
+                            })
+                            html += '</div></td>'
+                        }
+                        // Generate the html component and append it
+                        $(`#resultados-${method}`).append($(`<tr>${html}</tr>`)[0])
+                    })
+                }
+            },
+
+            // Inicializando a tabela
+            initialize: function () {
+                this.inputs.quant_cenarios = $('#quantidade_cenarios')[0]
+                $(this.inputs.quant_cenarios).on('change', e => this.updateTableSize.apply(this, [Number.parseInt(e.target.value)]))
+                this.inputs.quant_investimentos = $('#quantidade_investimentos')[0]
+                $(this.inputs.quant_investimentos).on('change', e => this.updateTableSize.apply(this, [null, Number.parseInt(e.target.value)]))
+                this.containers.cenarios = $('#head_cenarios')[0]
+                this.containers.investimentos = $('#body_investimento')[0]
+
+                this.updateTableSize()
+            }
+        }
+
+        // Método documet.ready
+        $(() => {
+            // Inicializando a input table
+            InputTable.initialize()
+            // Inicializando o listener dos botões
+            $('.button-check-input').on('click', e => {
+                let element = e.target
+                if (element.tagName != 'BUTTON') {
+                    element = element.parentElement
+                }
+                element.querySelector('input').checked = true
+            })
+        })
+    </script>
+</body>
+
+</html>
