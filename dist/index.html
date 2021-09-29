@@ -394,12 +394,12 @@
                     methodResults.forEach(item => {
                         let html = `
                             <td>Investimento ${(item.id != null) ? item.id + 1 : ''}</td>
-                            <td class="text-center">${(ambiente == 'risco') ? item.resultado : item[method]}</td>
+                            <td class="text-center">${(ambiente == 'risco') ? item.resultado.toFixed(2) : item[method]}</td>
                             `
                         if (method == 'veip') {
                             html += '<td class="fill-grid"><div class="grid-container">'
                             item.valores.forEach((valor, key) => {
-                                html += `<span>Cen-${key}: <b>${valor}</b></span>`
+                                html += `<span>Cen-${key}: <b>${valor.toFixed(2)}</b></span>`
                             })
                             html += '</div></td>'
                         }
