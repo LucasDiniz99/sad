@@ -16,7 +16,7 @@
 <body>
     <main class="px-2 py-4 d-flex justify-content-center bg-grey">
         <div class="card card-body shadow-sm bg-light">
-            <div class="card card-body stylish-title">
+            <div class="bg-primary text-white card card-body stylish-title">
                 <h3>Sistema de Análise de Decisão</h3>
             </div>
 
@@ -256,17 +256,45 @@
                 investimentos: null
             },
 
-            updateTableSize: function (quantCenarios = null, quantInvestimentos = null) {
-                let first = quantCenarios == null && quantInvestimentos == null
-                // Caso não seja a primeira chamada, salva o formulario antes de alterar as listas de cenarios e
-                if (!first)
-                    this.getForm()
+            // Renderiza o html da tabela
+            render: function () {
+                // Limpando os containers
+                for (let item in this.containers)
+                    $(this.containers[item]).empty()
 
+                // Inserindo os cenarios
+                this.cenarios.forEach((cenario, key) => {
+                    // Primeira coluna (dos labels)
+                    if (key == 0)
+                        this.containers.cenarios.append($('<th></th>')[0])
+                    this.containers.cenarios.append($(cenario.toString())[0])
+                })
+
+                // Inserindo os investimentos
+                this.investimentos.forEach(investimento => {
+                    this.containers.investimentos.append($(investimento.toString(true))[0])
+                })
+            },
+
+            // Método responsavel por expandir e comprimir o tamanho da tabela
+            updateTableSize: function (quantCenarios = null, quantInvestimentos = null) {
+                // Verifica se é a primeira chamada, caso seja será salvo o formulário somente após gerar os cenarios e investimentos
+                let first = (this.quant_cenarios <= 0 || this.quant_investimentos <= 0) && (quantCenarios == null || quantInvestimentos == null)
                 // Caso não haja nenhum cenário nem investimento quando chamado o método insere 1 de cada
                 if ((this.quant_cenarios <= 0 || this.quant_investimentos <= 0) && (quantCenarios == null || quantInvestimentos == null)) {
-                    this.quant_cenarios = this.quant_investimentos = 0
-                    quantCenarios = Math.max(1, Number.parseInt(this.inputs.quant_cenarios.value || 0))
-                    quantInvestimentos = Math.max(1, Number.parseInt(this.inputs.quant_investimentos.value || 0))
+                    this.quant_cenarios = Math.max(0, this.quant_cenarios)
+                    this.quant_investimentos = Math.max(0, this.quant_investimentos)
+                    // Pega os valores do input de quantidades de cenarios e investimentos
+                    quantCenarios = Math.max(1, Number.parseInt(this.inputs.quant_cenarios.value || 1))
+                    quantInvestimentos = Math.max(1, Number.parseInt(this.inputs.quant_investimentos.value || 1))
+                } else {
+                    // Validar a quantidade de cenarios e investimentos
+                    if(quantCenarios != null) 
+                        this.inputs.quant_cenarios.value = quantCenarios = Math.max(1, quantCenarios)
+                    if(quantInvestimentos != null) 
+                        this.inputs.quant_investimentos.value = quantInvestimentos = Math.max(1, quantInvestimentos)
+                    // Salva o formulario antes de limpar a tabela
+                    this.getForm()
                 }
 
                 // Quando há variação nos cenários
@@ -311,6 +339,7 @@
                 this.render()
             },
 
+            // Método que salva os dados do formulario
             getForm: function () {
                 // Atualizar os cenarios
                 this.containers.cenarios.querySelectorAll('input').forEach(item => {
@@ -330,26 +359,6 @@
                 })
                 // Atualizar tipo de ambiente
                 this.ambiente = Array.from(document.querySelectorAll('input[name="tipo_ambiente"]')).find(el => el.checked).value
-            },
-
-            // Renderiza o html da tabela
-            render: function () {
-                // Limpando os containers
-                for (let item in this.containers)
-                    $(this.containers[item]).empty()
-
-                // Inserindo os cenarios
-                this.cenarios.forEach((cenario, key) => {
-                    // Primeira coluna (dos labels)
-                    if (key == 0)
-                        this.containers.cenarios.append($('<th></th>')[0])
-                    this.containers.cenarios.append($(cenario.toString())[0])
-                })
-
-                // Inserindo os investimentos
-                this.investimentos.forEach(investimento => {
-                    this.containers.investimentos.append($(investimento.toString(true))[0])
-                })
             },
 
             // Calcula o resultado a partir das entradas providas
@@ -379,12 +388,12 @@
                     $(`#resultados-${method}`).empty()
                     // Dependendo do ambiente os resultados ficam em uma chave diferente
                     let methodResults = (ambiente == 'risco') ? result[keys[i]].investimentos : result[keys[i]]
-                    
+
                     console.log(ambiente, method, methodResults)
                     // Gera o html a partir dos resultados
                     methodResults.forEach(item => {
                         let html = `
-                            <td>Investimento ${(item.id != null) ? item.id : ''}</td>
+                            <td>Investimento ${(item.id != null) ? item.id + 1 : ''}</td>
                             <td class="text-center">${(ambiente == 'risco') ? item.resultado : item[method]}</td>
                             `
                         if (method == 'veip') {
@@ -401,13 +410,15 @@
             },
 
             // Inicializando a tabela
-            initialize: function () {
+            initialize: function (quantCenarios = 1, quantInvestimentos = 1) {
                 this.inputs.quant_cenarios = $('#quantidade_cenarios')[0]
                 $(this.inputs.quant_cenarios).on('change', e => this.updateTableSize.apply(this, [Number.parseInt(e.target.value)]))
                 this.inputs.quant_investimentos = $('#quantidade_investimentos')[0]
                 $(this.inputs.quant_investimentos).on('change', e => this.updateTableSize.apply(this, [null, Number.parseInt(e.target.value)]))
                 this.containers.cenarios = $('#head_cenarios')[0]
                 this.containers.investimentos = $('#body_investimento')[0]
+                this.quantCenarios = quantCenarios
+                this.quantInvestimentos = quantInvestimentos
 
                 this.updateTableSize()
             }

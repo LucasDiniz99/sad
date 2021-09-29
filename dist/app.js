@@ -28,7 +28,7 @@ class Cenario {
     toString() {
         return `
         <th id="cenario-input-${this.id}">
-          <span class="mr-2">C${this.id}</span>
+          <span class="mr-2">C${this.id + 1}</span>
           <input cen="${this.id}" onclick="$('#cenario-input-${this.id} input').select()" type="number" min="0" max="100" value="${this.probabilidade * 100}">
           <span class="ml-1">%</span>
         </th>
@@ -81,7 +81,7 @@ class Investimento {
     toString(showLabel = false) {
         let html = `<tr inv="${this.id}" id="investimento-input-${this.id}">`
         if(showLabel) {
-            html += `<td class="table-label">Inv-${this.id}</td>`
+            html += `<td class="table-label">Inv-${this.id + 1}</td>`
         }
         for (let i = 0; i < this.valores.length; i++) {
             html += `<td class="text-center">
@@ -143,8 +143,8 @@ function calcRisco(cenarios, investimentos) {
     // Calculando melhor oportunidade do POE
     for (let i = 0; i < cenarios.length; i++) {
         investimentos.forEach(inv => {
-            if (i < inv.valores.length)
-                POE.melhor_oportunidade[i] = Math.max(POE.melhor_oportunidade[i], inv.valores[i])
+            // A quantidade de valores dos investimentos por padrão deve ser igual à dos cenários, logo caso ocorra erro o problema não é aqui
+            POE.melhor_oportunidade[i] = Math.max(POE.melhor_oportunidade[i], inv.valores[i])
         })
         cenarios[i].melhor_oportunidade = POE.melhor_oportunidade[i]
     }
@@ -204,7 +204,7 @@ function calcIncerteza(cenarios, investimentos) {
 
     // Variaveis comparativas para possibilitar resultados com multiplos investimentos
     let melhorMaxiMax = Number.MIN_SAFE_INTEGER;
-    let melhorMaxiMin = Number.MAX_SAFE_INTEGER;
+    let melhorMaxiMin = Number.MIN_SAFE_INTEGER;
     let melhorLaplace = Number.MIN_SAFE_INTEGER;
     let melhorHurwicz = Number.MIN_SAFE_INTEGER;
     let melhorMiniMax = Number.MAX_SAFE_INTEGER;
@@ -234,7 +234,7 @@ function calcIncerteza(cenarios, investimentos) {
 
         result.resultados.push(aux)
         melhorMaxiMax = Math.max(melhorMaxiMax, aux.maximax);
-        melhorMaxiMin = Math.min(melhorMaxiMin, aux.maximin);
+        melhorMaxiMin = Math.max(melhorMaxiMin, aux.maximin);
         melhorLaplace = Math.max(melhorLaplace, aux.laplace);
         melhorHurwicz = Math.max(melhorHurwicz, aux.hurwicz);
         melhorMiniMax = Math.min(melhorMiniMax, aux.minimax);
