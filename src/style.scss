@@ -20,6 +20,10 @@ main {
     font-weight: bold;
 }
 
+#head_cenarios input {
+    max-width: 4rem;
+}
+
 .table-container {
     overflow-x: scroll;
     width: max-content;
